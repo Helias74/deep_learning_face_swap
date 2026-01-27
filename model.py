@@ -4,7 +4,7 @@ class SimpleCNN(nn.Module):
     def __init__(self):
         super().__init__()
         self.features = nn.Sequential( #regarde l'image
-            nn.Conv2d(3,16,3,padding=1), #format (entree, sortie, taille filtre [3x3, 5x5, etc], taille d'ajout de bordure)
+            nn.Conv2d(3,16,3,padding=1), #format (entree, sortie, taille filtre [3x3, 5x5, etc], taille d'ajout de bordure) #padding pour conserver taille image de base
             nn.ReLU(), #supprime les valeurs negatives
             nn.MaxPool2d(2), #reduction (division) volontaire pour generaliser et aller plus vite (mais alors pourquoi le padding [point a approfondir])
             nn.Conv2d(16,32,3,padding=1), #la sortie precedente devient l'entree actuel et donc la sortie est augmenter
