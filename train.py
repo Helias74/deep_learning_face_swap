@@ -20,5 +20,5 @@ for epoch in range(10):
         loss_sum += loss.item()
     print(f"Epoch {epoch+1} Loss {loss_sum:.3f}")
 
-torch.save(model.state_dict(),"model.pth")
+torch.save(model.state_dict(),"human_cnn_v1.pth")
 print("Model saved")

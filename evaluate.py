@@ -1,6 +1,6 @@
 import torch
 from torchvision import datasets, transforms
-from model import SimpleCNN   # adapte si nécessaire
+from model import SimpleCNN, HumanCNN 
 import os
 import shutil
 from PIL import Image
@@ -45,8 +45,9 @@ for cls in class_names:
 # =========================
 # Chargement du modèle
 # =========================
-model = SimpleCNN()
-model.load_state_dict(torch.load("model.pth", map_location=DEVICE))
+model = HumanCNN()
+#model.load_state_dict(torch.load("human_cnn_v1.pth", map_location=DEVICE))
+torch.save(model.state_dict(), "human_cnn_v1.pth")
 model.eval()
 
 # =========================
