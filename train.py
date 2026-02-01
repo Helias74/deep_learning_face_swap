@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from model import SimpleCNN
+from model import SimpleCNN,ShapeCNN
 from dataset import get_dataloaders
 
 """
