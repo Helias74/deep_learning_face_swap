@@ -5,25 +5,50 @@ import torch.nn as nn
 class SimpleCNN(nn.Module):
     def __init__(self):
         super().__init__()
-        self.features = nn.Sequential( #regarde l'image
-            nn.Conv2d(3,16,3,padding=1), #format (entree, sortie, taille filtre [3x3, 5x5, etc], taille d'ajout de bordure) #padding pour conserver taille image de base
-            nn.ReLU(), #supprime les valeurs negatives
-            nn.MaxPool2d(2), #reduction (division) volontaire pour generaliser et aller plus vite (mais alors pourquoi le padding [point a approfondir])
-            nn.Conv2d(16,32,3,padding=1), #la sortie precedente devient l'entree actuel et donc la sortie est augmenter
+
+        # ======================
+        # Extraction des features
+        # ======================
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 16, 3, padding=1),
+            nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.MaxPool2d(2),
-            nn.Conv2d(32,64,3,padding=1),
+
+            nn.Conv2d(16, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(2),
+
+            nn.Conv2d(32, 64, 3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+
+            # Rend le modèle indépendant de la taille de l’image
+            nn.AdaptiveAvgPool2d((1, 1))
         )
-        self.classifier = nn.Sequential( #prend la decision
+
+        # ======================
+        # Classification
+        # ======================
+        self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(64*8*8,128), #64 car derniere sortie (L13) et 8 car 64 (format de l'image) divisé en deux trois fois (ce qui donne au final 64*64 le format initial de l'image)
+            nn.Linear(64, 128),
             nn.ReLU(),
-            nn.Linear(128,2) #128 ici et L19 c'est en combien de neurones/etapes tout les pixels passent et 2 pour les deux differentes classes/cas (chat, chien)
+            nn.Dropout(0.5),
+            nn.Linear(128, 2)
         )
-    def forward(self,x):
-        return self.classifier(self.features(x)) 
+
+        # ======================
+        # Normalisation sortie
+        # ======================
+        self.output_activation = nn.Sigmoid()
+
+    def forward(self, x):
+        x = self.features(x)
+        x = self.classifier(x)
+        x = self.output_activation(x)
+        return x
     
     
 #Première version pour repérer si humain sur photos    
@@ -46,7 +71,7 @@ class HumanCNN(nn.Module):
 
             nn.Conv2d(128, 128, 3, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(2),
+            nn.MaxPool2d(2),    
         )
 
         self.classifier = nn.Sequential(
@@ -61,31 +86,53 @@ class HumanCNN(nn.Module):
         return self.classifier(self.features(x))
 
 #version pour reconnaitre des formes
+import torch
+import torch.nn as nn
+
 class ShapeCNN(nn.Module):
     def __init__(self, num_classes=3):
         super().__init__()
-        
+
+        # ======================
+        # Extraction des features
+        # ======================
         self.features = nn.Sequential(
             nn.Conv2d(3, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(2),
 
             nn.Conv2d(32, 64, 3, padding=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2),
 
             nn.Conv2d(64, 128, 3, padding=1),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.MaxPool2d(2),
+
+            # Rend le modèle indépendant de la taille de l’image
+            nn.AdaptiveAvgPool2d((1, 1))
         )
 
+        # ======================
+        # Classification
+        # ======================
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(128 * 8 * 8, 256),
+            nn.Linear(128, 256),
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(256, num_classes)
         )
 
+        # ======================
+        # Normalisation sortie
+        # ======================
+        self.output_activation = nn.Softmax(dim=1)
+
     def forward(self, x):
-        return self.classifier(self.features(x))
+        x = self.features(x)
+        x = self.classifier(x)
+        x = self.output_activation(x)
+        return x
