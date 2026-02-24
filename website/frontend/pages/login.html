@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — FaceSwap</title>
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="logo">Face<span>Swap</span></a>
+  </nav>
+
+  <main class="form-page">
+    <div class="card">
+      <h1>Connexion</h1>
+      <form id="login-form">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Mot de passe" required>
+        <p id="error" class="error" style="display:none"></p>
+        <button type="submit" class="btn-primary">Se connecter</button>
+      </form>
+      <p class="form-link">Pas de compte ? <a href="register.html">S'inscrire</a></p>
+    </div>
+  </main>
+
+  <script src="../scripts/auth.js"></script>
+  <script src="../scripts/login.js"></script>
+</body>
+</html>

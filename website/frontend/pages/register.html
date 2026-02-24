@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription — FaceSwap</title>
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="logo">Face<span>Swap</span></a>
+  </nav>
+
+  <main class="form-page">
+    <div class="card">
+      <h1>Créer un compte</h1>
+      <form id="register-form">
+        <input type="text" id="name" placeholder="Nom (optionnel)">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Mot de passe" required>
+        <p id="error" class="error" style="display:none"></p>
+        <button type="submit" class="btn-primary">Créer mon compte</button>
+      </form>
+      <p class="form-link">Déjà un compte ? <a href="login.html">Se connecter</a></p>
+    </div>
+  </main>
+
+  <script src="../scripts/auth.js"></script>
+  <script src="../scripts/register.js"></script>
+</body>
+</html>

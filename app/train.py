@@ -32,7 +32,7 @@ criterion = nn.CrossEntropyLoss() #fonction de perte
 optimizer = optim.Adam(model.parameters(), lr=0.001) #maniere d'optimiser (Adam en l'occurence)
 
 #systeme qui ressemble a la fonction CheminNonSature (Dijkstra) dans le tp9 de lifapc dans l'actualisation des gradients
-for epoch in range(50):
+for epoch in range(20):
     model.train() #active le dropout
     loss_sum = 0
     for x,y in train_loader: #(x = image du batch ,y = etiquette [nom de dossier] correspondants)

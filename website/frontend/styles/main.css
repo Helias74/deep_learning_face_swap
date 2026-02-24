@@ -1,0 +1,60 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a0a;
+  color: #fafafa;
+  font-family: sans-serif;
+}
+
+.card {
+  background: #161616;
+  border: 1px solid #262626;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.label {
+  color: #737373;
+  font-size: 0.875rem;
+  margin-bottom: 10px;
+}
+
+.dropzone {
+  border: 2px dashed #262626;
+  border-radius: 10px;
+  height: 160px;
+}
+
+.btn-primary {
+  background: #818cf8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.swap-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.dashboard-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}

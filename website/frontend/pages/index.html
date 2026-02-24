@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FaceSwap</title>
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="logo">Face<span>Swap</span></a>
+    <div class="nav-links">
+      <a href="swap.html">Swap</a>
+      <a href="login.html" id="nav-login">Connexion</a>
+      <a href="dashboard.html" id="nav-dashboard" style="display:none">Dashboard</a>
+      <button id="nav-logout" style="display:none" onclick="logout()">Déconnexion</button>
+    </div>
+  </nav>
+
+  <main class="hero">
+    <h1>Face<span>Swap</span></h1>
+    <p>Échangez des visages en quelques secondes avec l'IA.</p>
+    <div class="hero-buttons">
+      <a href="swap.html" class="btn-primary">Commencer →</a>
+      <a href="login.html" class="btn-ghost">Se connecter</a>
+    </div>
+  </main>
+
+  <script src="../scripts/auth.js"></script>
+</body>
+</html>
