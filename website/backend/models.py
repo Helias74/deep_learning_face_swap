@@ -1,5 +1,5 @@
 from queries import (
-    sql_insert_user, sql_get_user_by_email, sql_get_user_by_id,
+    sql_insert_user, sql_get_user_by_email, sql_get_user_by_id,sql_get_password_by_email,
 )
 from fastapi import HTTPException #Permet de spécifier les erreurs avec raise
 
@@ -13,3 +13,11 @@ def create_user(email: str, password: str, name: str):
     
     user_id = sql_insert_user(email, password, name)
     return {"id": user_id, "email": email, "name": name}
+
+def connection (email:str, password:str):
+    user = sql_get_user_by_email(email)
+    if sql_get_user_by_email(email) and user["password"]==password:
+        return {"id": user["id"], "email": user["email"], "name": user["name"]}
+    else :
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+        

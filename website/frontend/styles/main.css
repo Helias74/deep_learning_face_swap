@@ -19,10 +19,85 @@ body {
   margin-bottom: 10px;
 }
 
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid #262626;
+}
+
+.nav-links {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-links a, .nav-links button {
+  color: #fafafa;
+  text-decoration: none;
+  padding: 6px 12px;
+  border: 1px solid #262626;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.logo {
+  font-weight: 700;
+  text-decoration: none;
+  color: #fafafa;
+}
+
+.logo span {
+  color: #818cf8;
+}
+
+.hero {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  height: 50vh;
+  padding-top: clamp(6rem, 10vw, 12rem);
+  padding-bottom: 0;
+  padding-left: clamp(2rem, 7vw, 6rem);
+  padding-right: clamp(2rem, 7vw, 6rem);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ligne-haut-slogan {
+  font-size: larger;
+  padding: 0 clamp(1rem, 5vw, 4rem);
+  display: inline-block;
+  color: #818cf8;
+}
+
+.ligne-bas-slogan {
+  font-size: large;
+  display: inline-block;
+  color: #ffffff;
+  margin-bottom: 15px;
+
+}
+
+.point-slogan {
+  font-size: larger;
+  color: #818cf8;
+}
+
 .dropzone {
   border: 2px dashed #262626;
   border-radius: 10px;
   height: 160px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 12px;
 }
 
 .btn-primary {
@@ -32,7 +107,19 @@ body {
   border-radius: 8px;
   padding: 10px 20px;
   cursor: pointer;
-  width: 100%;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.btn-ghost {
+  background: none;
+  color: #fafafa;
+  border: 1px solid #262626;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 0.875rem;
 }
 
 .swap-page {

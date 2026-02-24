@@ -60,3 +60,9 @@ def sql_get_user_by_id(user_id: int):
     row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     conn.close()
     return row
+
+def sql_get_password_by_email(user_email: str):
+    conn = get_connection()
+    row = conn.execute("SELECT * FROM users WHERE email = ?", (user_email,)).fetchone()
+    conn.close()
+    return row
