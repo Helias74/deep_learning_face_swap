@@ -1,3 +1,7 @@
+import os
+from pathlib import Path
+
+
 from queries import (
     sql_insert_user, sql_get_user_by_email, sql_get_user_by_id,sql_get_password_by_email,
 )
@@ -21,3 +25,25 @@ def connection (email:str, password:str):
     else :
         raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
         
+# ── MODELS ──
+
+def scan_model():
+    BASE_DIR = Path(__file__).resolve().parents[2]
+    models_directory = BASE_DIR / "app/models"
+    
+    if not models_directory.exists():
+        return {"error": "Dossier models introuvable"}
+
+    models_data = []
+
+    for file in sorted(models_directory.glob("*.pth")):
+        models_data.append({
+            "name": file.name,
+            "file_path": str(file)
+        })
+
+    return models_data
+
+    
+
+    

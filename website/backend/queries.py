@@ -29,6 +29,14 @@ def init_db():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         );
+        
+        CREATE TABLE IF NOT EXISTS models (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        
     """)
     conn.commit()
     conn.close()
@@ -66,3 +74,36 @@ def sql_get_password_by_email(user_email: str):
     row = conn.execute("SELECT * FROM users WHERE email = ?", (user_email,)).fetchone()
     conn.close()
     return row
+
+# --Models--
+
+def insert_model(db_path: str, models_data: list):
+    print("Fonction insert_model appelée")
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    inserted = 0
+
+    for model in models_data:
+        cursor.execute(
+            "SELECT id FROM models WHERE name = ?",
+            (model["name"],)
+        )
+
+        if not cursor.fetchone():
+            cursor.execute(
+                """
+                INSERT INTO models (name, file_path)
+                VALUES (?, ?)
+                """,
+                (
+                    model["name"],
+                    model["file_path"]
+                )
+            )
+            inserted+=1
+ 
+    conn.commit()
+    conn.close()
+
+    return {"models_inserted": inserted}
