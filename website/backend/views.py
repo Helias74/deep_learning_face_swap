@@ -1,6 +1,6 @@
 from fastapi import APIRouter,FastAPI
 from pydantic import BaseModel
-from models import create_user,connection,scan_model
+from models import create_user,connection,scan_model,get_models
 from queries import insert_model
 from pathlib import Path
 
@@ -38,3 +38,7 @@ def load_models():
     models = scan_model() 
     BASE_DIR = Path(__file__).resolve().parents[2]
     models_directory = BASE_DIR / "app/models"
+    
+@router.get("/swap/models")
+def list_models():
+    return get_models()

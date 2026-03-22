@@ -107,3 +107,9 @@ def insert_model(db_path: str, models_data: list):
     conn.close()
 
     return {"models_inserted": inserted}
+
+def sql_get_models():
+    conn = get_connection()
+    rows = conn.execute("SELECT name, file_path FROM models").fetchall()
+    conn.close()
+    return rows
