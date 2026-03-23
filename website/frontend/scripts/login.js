@@ -1,3 +1,7 @@
+const API = window.location.hostname === "localhost" 
+  ? "http://localhost:8000" 
+  : "https://deep-learning-face-swap.onrender.com";
+
 document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = document.getElementById("email").value;
