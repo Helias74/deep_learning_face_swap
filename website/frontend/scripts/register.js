@@ -1,6 +1,3 @@
-const API = window.location.hostname === "localhost" 
-  ? "http://localhost:8000" 
-  : "https://deep-learning-face-swap.onrender.com";
 
 
 document.getElementById("register-form").addEventListener("submit", async (e) => {
