@@ -147,10 +147,21 @@ body {
   gap: 20px;
 }
 
+/* Media query pour mobiles */
 @media (max-width: 600px) {
-  .swap-page {
-    max-width: 100%;
-    padding: 12px 8px; /* réduit fortement les bordures */
-    gap: 12px; /* optionnel : réduit l’espace entre éléments */
+  .swap-page,
+  .dashboard-page {
+    max-width: 100%;      /* pleine largeur de l’écran */
+    padding: 8px 4px;     /* padding réduit pour plus de place */
+    gap: 12px;            /* espacement plus serré */
+  }
+
+  .upload-grid {
+    grid-template-columns: 1fr; /* une seule colonne sur mobile */
+    gap: 12px;
+  }
+
+  .dropzone {
+    height: 140px;        /* ajustement hauteur */
   }
 }
