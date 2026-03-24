@@ -1,20 +1,20 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: #0a0a0a;
-  color: #fafafa;
+  background: #ffffff;
+  color: #1a1a1a;
   font-family: sans-serif;
 }
 
 .card {
-  background: #161616;
-  border: 1px solid #262626;
+  background: #f5f5f4;
+  border: 1px solid #d6d3d1;
   border-radius: 12px;
   padding: 20px;
 }
 
 .label {
-  color: #737373;
+  color: #78716c;
   font-size: 0.875rem;
   margin-bottom: 10px;
 }
@@ -24,7 +24,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  border-bottom: 1px solid #262626;
+  border-bottom: 1px solid #d6d3d1;
 }
 
 .nav-links {
@@ -33,10 +33,10 @@ body {
 }
 
 .nav-links a, .nav-links button {
-  color: #fafafa;
+  color: #1a1a1a;
   text-decoration: none;
   padding: 6px 12px;
-  border: 1px solid #262626;
+  border: 1px solid #d6d3d1;
   border-radius: 8px;
   background: none;
   cursor: pointer;
@@ -46,11 +46,11 @@ body {
 .logo {
   font-weight: 700;
   text-decoration: none;
-  color: #fafafa;
+  color: #1a1a1a;
 }
 
 .logo span {
-  color: #818cf8;
+  color: #4a7c59;
 }
 
 .hero {
@@ -73,24 +73,23 @@ body {
   font-size: larger;
   padding: 0 clamp(1rem, 5vw, 4rem);
   display: inline-block;
-  color: #818cf8;
+  color: #4a7c59;
 }
 
 .ligne-bas-slogan {
   font-size: large;
   display: inline-block;
-  color: #ffffff;
+  color: #1a1a1a;
   margin-bottom: 15px;
-
 }
 
 .point-slogan {
   font-size: larger;
-  color: #818cf8;
+  color: #4a7c59;
 }
 
 .dropzone {
-  border: 2px dashed #262626;
+  border: 2px dashed #d6d3d1;
   border-radius: 10px;
   height: 160px;
 }
@@ -101,7 +100,7 @@ body {
 }
 
 .btn-primary {
-  background: #818cf8;
+  background: #4a7c59;
   color: white;
   border: none;
   border-radius: 8px;
@@ -113,8 +112,8 @@ body {
 
 .btn-ghost {
   background: none;
-  color: #fafafa;
-  border: 1px solid #262626;
+  color: #1a1a1a;
+  border: 1px solid #d6d3d1;
   border-radius: 8px;
   padding: 10px 20px;
   cursor: pointer;
@@ -131,6 +130,8 @@ body {
   gap: 20px;
 }
 
+
+
 .upload-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -145,3 +146,5 @@ body {
   flex-direction: column;
   gap: 20px;
 }
+
+
