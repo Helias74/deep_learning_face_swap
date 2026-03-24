@@ -147,4 +147,10 @@ body {
   gap: 20px;
 }
 
-
+@media (max-width: 600px) {
+  .swap-page {
+    max-width: 100%;
+    padding: 12px 8px; /* réduit fortement les bordures */
+    gap: 12px; /* optionnel : réduit l’espace entre éléments */
+  }
+}
