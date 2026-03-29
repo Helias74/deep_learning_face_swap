@@ -34,7 +34,7 @@ def scan_model():
     models_directory = BASE_DIR / "app/models"
     
     if not models_directory.exists():
-        return {"error": "Dossier models introuvable"}
+        return []
 
     models_data = []
 

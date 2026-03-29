@@ -1,7 +1,3 @@
-const API = window.location.hostname === "localhost" 
-  ? "http://localhost:8000" 
-  : "https://deep-learning-face-swap.onrender.com";
-
 document.addEventListener("DOMContentLoaded", async () => {
   const res = await fetch(`${API}/swap/models`);
   const models = await res.json();
