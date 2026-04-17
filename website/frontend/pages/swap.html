@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Swap — FaceSwap</title>
-  <link rel="stylesheet" href="../styles/main.css"></head>
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
 <body>
   <nav class="navbar">
     <a href="index.html" class="logo">Face<span>Swap</span></a>
@@ -14,42 +15,41 @@
     <h1>Face Swap</h1>
 
     <!-- Choix du modèle -->
-   <div class="card">
-    <p class="label">Modèle</p>
-    <select id="model-select">
-      <option value="">Chargement...</option>
-    </select>
-  </div>
+    <div class="card">
+      <p class="label">Modèle</p>
+      <select id="model-select">
+        <option value="">Chargement...</option>
+      </select>
+    </div>
 
     <!-- Upload images -->
     <div class="upload-grid">
-    <div class="card">
-      <p class="label">Source</p>
-      <div class="dropzone" id="drop-source">
-        <img id="preview-source" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:8px;">
-        <span id="text-source">Cliquer pour choisir</span>
-        <input type="file" id="input-source" accept="image/*" style="display:none">
+      <div class="card">
+        <p class="label">Source</p>
+        <div class="dropzone" id="drop-source">
+          <img id="preview-source" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:8px;">
+          <span id="text-source">Cliquer pour choisir</span>
+          <input type="file" id="input-source" accept="image/*" style="display:none">
+        </div>
+      </div>
+      <div class="card">
+        <p class="label">Cible</p>
+        <div class="dropzone" id="drop-target">
+          <img id="preview-target" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:8px;">
+          <span id="text-target">Cliquer pour choisir</span>
+          <input type="file" id="input-target" accept="image/*" style="display:none">
+        </div>
       </div>
     </div>
-    <div class="card">
-      <p class="label">Cible</p>
-      <div class="dropzone" id="drop-target">
-        <img id="preview-target" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:8px;">
-        <span id="text-target">Cliquer pour choisir</span>
-        <input type="file" id="input-target" accept="image/*" style="display:none">
-      </div>
-    </div>
-  </div>
 
     <!-- Résultat -->
     <div class="card">
       <p class="label">Résultat</p>
-      <div class="dropzone"></div>
+      <div class="dropzone" id="result-zone"></div>  <!-- ← ID AJOUTÉ -->
     </div>
 
   </main>
   <script src="../scripts/auth.js"></script>
   <script src="../scripts/swap.js"></script>
-
 </body>
 </html>

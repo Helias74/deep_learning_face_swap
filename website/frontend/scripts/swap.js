@@ -16,7 +16,7 @@ document.getElementById("input-source").addEventListener("change", (e) => {
   document.getElementById("preview-source").style.display = "block";
   document.getElementById("text-source").style.display = "none";
   
-  if (sourceFile && targetFile) performCrop();
+  if (sourceFile && targetFile) performSwap();
 });
 
 document.getElementById("input-target").addEventListener("change", (e) => {
@@ -28,16 +28,17 @@ document.getElementById("input-target").addEventListener("change", (e) => {
   document.getElementById("preview-target").style.display = "block";
   document.getElementById("text-target").style.display = "none";
   
-  if (sourceFile && targetFile) performCrop();
+  if (sourceFile && targetFile) performSwap();
 });
 
-async function performCrop() {
-  const resultCard = document.querySelector('.card:last-child .dropzone');
+async function performSwap() {
+  const resultCard = document.getElementById("result-zone");  // ← CHANGEMENT ICI
   
   resultCard.innerHTML = `
     <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#666;">
       <div style="width:40px; height:40px; border:4px solid #f3f3f3; border-top:4px solid #3498db; border-radius:50%; animation:spin 1s linear infinite;"></div>
-      <p style="margin-top:16px; font-size:14px;">Crop en cours...</p>
+      <p style="margin-top:16px; font-size:14px;">Face swap en cours...</p>
+      <p style="font-size:12px; color:#999; margin-top:8px;">Crop + Swap (30-60s)</p>
     </div>
     <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }}</style>
   `;
@@ -47,11 +48,11 @@ async function performCrop() {
     formData.append("source", sourceFile);
     formData.append("target", targetFile);
     
-    const response = await fetch(`${API}/swap/crop`, { method: "POST", body: formData });
+    const response = await fetch(`${API}/swap/process`, { method: "POST", body: formData });
     
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.detail || "Erreur lors du crop");
+      throw new Error(errorData.detail || "Erreur lors du face swap");
     }
     
     const blob = await response.blob();
@@ -60,8 +61,11 @@ async function performCrop() {
     resultCard.innerHTML = `
       <img src="${imageUrl}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
       <p style="position:absolute; bottom:16px; left:16px; background:rgba(0,0,0,0.7); color:white; padding:8px 12px; border-radius:4px; font-size:12px;">
-        Image source croppée ✓
+        Face swap réussi ✓
       </p>
+      <button onclick="downloadImage('${imageUrl}')" style="position:absolute; bottom:16px; right:16px; padding:8px 16px; background:#3498db; color:white; border:none; border-radius:4px; cursor:pointer;">
+        📥 Télécharger
+      </button>
     `;
     
   } catch (error) {
@@ -75,4 +79,11 @@ async function performCrop() {
       </div>
     `;
   }
+}
+
+function downloadImage(url) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `faceswap_${Date.now()}.jpg`;
+  a.click();
 }

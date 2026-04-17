@@ -61,9 +61,11 @@ def get_models():
 # Ajouter le chemin vers app/manual_crop
 BASE_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(BASE_DIR / "app" / "manual_crop"))
+sys.path.insert(0, str(BASE_DIR / "app" / "face_swap"))
 
 # Importer le modèle Regressor
 from model import Regressor
+from swapper import face_swap_from_paths 
 
 # Chemin vers le modèle de crop
 CROP_MODEL_PATH = BASE_DIR / "app" / "models" / "model.pth"
@@ -135,3 +137,29 @@ def crop_two_images(source_path: str, target_path: str) -> tuple[str, str]:
     print(f"✅ Deux images croppées avec succès")
     
     return source_crop, target_crop
+
+
+
+def perform_face_swap(source_crop_path: str, target_crop_path: str, output_path: str = None) -> str:
+
+    if not os.path.exists(source_crop_path):
+        raise FileNotFoundError(f"Image source croppée introuvable : {source_crop_path}")
+    
+    if not os.path.exists(target_crop_path):
+        raise FileNotFoundError(f"Image cible croppée introuvable : {target_crop_path}")
+    
+    # Déterminer le chemin de sortie
+    if output_path is None:
+        base_dir = Path(source_crop_path).parent
+        output_path = str(base_dir / "result.jpg")
+    
+    # Effectuer le face swap
+    print(f" Face swap : {source_crop_path} → {target_crop_path}")
+    result_path = face_swap_from_paths(
+        target_path=target_crop_path,
+        source_path=source_crop_path,
+        output_path=output_path,
+        use_gpu=False  # CPU sur Render
+    )
+    
+    return result_path

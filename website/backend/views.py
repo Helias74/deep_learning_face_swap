@@ -6,7 +6,7 @@ import shutil
 import uuid
 
 # Importer depuis models.py
-from models import create_user, connection, scan_model, get_models, crop_two_images
+from models import create_user, connection, scan_model, get_models, crop_two_images,perform_face_swap 
 from queries import insert_model
 
 router = APIRouter()
@@ -98,4 +98,63 @@ async def crop_images(
     
     except Exception as e:
         print(f"❌ Erreur : {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
+@router.post("/swap/process")
+async def process_face_swap(
+    source: UploadFile = File(...),
+    target: UploadFile = File(...)
+):
+    
+    session_id = str(uuid.uuid4())
+    session_dir = UPLOAD_DIR / session_id
+    session_dir.mkdir(exist_ok=True)
+    
+    try:
+        # 1. Sauvegarder les images uploadées
+        photo_a_path = session_dir / "photo_a.jpg"
+        photo_b_path = session_dir / "photo_b.jpg"
+        
+        with open(photo_a_path, "wb") as f:
+            shutil.copyfileobj(source.file, f)
+        
+        with open(photo_b_path, "wb") as f:
+            shutil.copyfileobj(target.file, f)
+        
+        print(f"✅ Images sauvegardées dans {session_dir}")
+        
+        # 2. Crop les visages
+        print(f"🔄 Crop des visages...")
+        source_crop_path, target_crop_path = crop_two_images(
+            str(photo_a_path), 
+            str(photo_b_path)
+        )
+        
+        print(f"✅ Visages croppés")
+        
+        # 3. Face swap
+        print(f"🎭 Face swap en cours...")
+        result_path = perform_face_swap(
+            source_crop_path=source_crop_path,
+            target_crop_path=target_crop_path
+        )
+        
+        print(f"✅ Face swap terminé : {result_path}")
+        
+        # 4. Retourner le résultat
+        return FileResponse(
+            path=result_path,
+            media_type="image/jpeg",
+            filename="faceswap_result.jpg"
+        )
+    
+    except FileNotFoundError as e:
+        print(f"❌ Fichier non trouvé : {e}")
+        raise HTTPException(status_code=404, detail=str(e))
+    
+    except Exception as e:
+        print(f"❌ Erreur : {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
