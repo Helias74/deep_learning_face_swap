@@ -2,6 +2,9 @@ const API = window.location.hostname === "localhost"
   ? "http://localhost:8000" 
   : "https://deep-learning-face-swap.onrender.com";
 
+console.log("🔗 API URL:", API);
+
+
 function getUser() {
   const u = localStorage.getItem("user");
   return u ? JSON.parse(u) : null;
