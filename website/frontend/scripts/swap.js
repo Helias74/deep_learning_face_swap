@@ -31,11 +31,7 @@ document.getElementById("input-target").addEventListener("change", (e) => {
   if (sourceFile && targetFile) performSwap();
 });
 
-// ════════════════════════════════════════════════════════════
-// FONCTION ROBUSTE : Trouve la zone de résultat avec ou sans ID
-// ════════════════════════════════════════════════════════════
 function getResultZone() {
-  // Méthode 1 : Par ID (si présent)
   let resultZone = document.getElementById("result-zone");
   
   if (resultZone) {
@@ -43,7 +39,6 @@ function getResultZone() {
     return resultZone;
   }
   
-  // Méthode 2 : Par label "Résultat"
   console.warn("⚠️ ID result-zone absent, recherche par label...");
   const labels = document.querySelectorAll('.label');
   
@@ -57,7 +52,6 @@ function getResultZone() {
     }
   }
   
-  // Méthode 3 : Dernière card en dehors de upload-grid
   console.warn("⚠️ Recherche par position...");
   const allCards = document.querySelectorAll('.card');
   const uploadGrid = document.querySelector('.upload-grid');
@@ -76,6 +70,38 @@ function getResultZone() {
   return null;
 }
 
+// ════════════════════════════════════════════════════════════
+// FONCTION : Appel API avec retry et gestion du cold start
+// ════════════════════════════════════════════════════════════
+async function fetchWithRetry(url, options, maxRetries = 2) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🔄 Tentative ${attempt}/${maxRetries}...`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+      
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      return response;
+      
+    } catch (error) {
+      console.error(`❌ Tentative ${attempt} échouée:`, error.message);
+      
+      if (attempt < maxRetries) {
+        console.log(`🔄 Nouvelle tentative dans 3 secondes...`);
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+
 async function performSwap() {
   const resultCard = getResultZone();
   
@@ -88,8 +114,9 @@ async function performSwap() {
   resultCard.innerHTML = `
     <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#666;">
       <div style="width:40px; height:40px; border:4px solid #f3f3f3; border-top:4px solid #3498db; border-radius:50%; animation:spin 1s linear infinite;"></div>
-      <p style="margin-top:16px; font-size:14px;">Face swap en cours...</p>
-      <p style="font-size:12px; color:#999; margin-top:8px;">Crop + Swap (30-60s)</p>
+      <p style="margin-top:16px; font-size:14px;">Démarrage du serveur...</p>
+      <p style="font-size:12px; color:#999; margin-top:8px;">Première utilisation : 30-60s</p>
+      <p style="font-size:12px; color:#999; margin-top:4px;">Ensuite : Crop + Swap (30-60s)</p>
     </div>
     <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }}</style>
   `;
@@ -99,11 +126,17 @@ async function performSwap() {
     formData.append("source", sourceFile);
     formData.append("target", targetFile);
     
-    const response = await fetch(`${API}/swap/process`, { method: "POST", body: formData });
+    // ════════════════════════════════════════════════════════════
+    // Appel avec retry pour gérer le cold start
+    // ════════════════════════════════════════════════════════════
+    const response = await fetchWithRetry(`${API}/swap/process`, {
+      method: "POST",
+      body: formData
+    }, 2);
     
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || "Erreur lors du face swap");
+      const errorData = await response.json().catch(() => ({ detail: "Erreur serveur" }));
+      throw new Error(errorData.detail || `Erreur ${response.status}`);
     }
     
     const blob = await response.blob();
@@ -120,10 +153,13 @@ async function performSwap() {
     `;
     
   } catch (error) {
+    console.error("❌ Erreur finale:", error);
+    
     resultCard.innerHTML = `
       <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#e74c3c;">
         <p style="font-size:18px;">❌ Erreur</p>
         <p style="font-size:14px; margin-top:8px;">${error.message}</p>
+        <p style="font-size:12px; color:#999; margin-top:8px;">Le serveur gratuit peut mettre jusqu'à 60s à démarrer</p>
         <button onclick="location.reload()" style="margin-top:16px; padding:8px 16px; background:#3498db; color:white; border:none; border-radius:4px; cursor:pointer;">
           Réessayer
         </button>
