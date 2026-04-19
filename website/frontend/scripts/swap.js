@@ -1,6 +1,40 @@
 let sourceFile = null;
 let targetFile = null;
 
+// Charger les modèles au démarrage
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadCropModels();
+  await loadSwapModels();
+});
+
+async function loadCropModels() {
+  try {
+    const response = await fetch(`${API}/swap/models/crop`);
+    const models = await response.json();
+    
+    const select = document.getElementById("crop-model-select");
+    select.innerHTML = models.map(m => 
+      `<option value="${m.name}">${m.name}</option>`
+    ).join('');
+  } catch (error) {
+    console.error("Erreur chargement modèles crop:", error);
+  }
+}
+
+async function loadSwapModels() {
+  try {
+    const response = await fetch(`${API}/swap/models/face_swap`);
+    const models = await response.json();
+    
+    const select = document.getElementById("swap-model-select");
+    select.innerHTML = models.map(m => 
+      `<option value="${m.name}">${m.name}</option>`
+    ).join('');
+  } catch (error) {
+    console.error("Erreur chargement modèles swap:", error);
+  }
+}
+
 document.getElementById("drop-source").onclick = () => 
   document.getElementById("input-source").click();
 
@@ -33,7 +67,6 @@ document.getElementById("input-target").addEventListener("change", (e) => {
 
 function getResultZone() {
   let resultZone = document.getElementById("result-zone");
-  
   if (resultZone) return resultZone;
   
   const labels = document.querySelectorAll('.label');
@@ -43,16 +76,6 @@ function getResultZone() {
       if (resultZone && resultZone.classList.contains('dropzone')) {
         return resultZone;
       }
-    }
-  }
-  
-  const allCards = document.querySelectorAll('.card');
-  const uploadGrid = document.querySelector('.upload-grid');
-  
-  for (let card of allCards) {
-    if (!uploadGrid.contains(card)) {
-      const dropzone = card.querySelector('.dropzone');
-      if (dropzone) return dropzone;
     }
   }
   
@@ -76,9 +99,14 @@ async function performSwap() {
   `;
   
   try {
+    const cropModel = document.getElementById("crop-model-select").value;
+    const swapModel = document.getElementById("swap-model-select").value;
+    
     const formData = new FormData();
     formData.append("source", sourceFile);
     formData.append("target", targetFile);
+    formData.append("crop_model", cropModel);
+    formData.append("swap_model", swapModel);
     
     const response = await fetch(`${API}/swap/process`, {
       method: "POST",

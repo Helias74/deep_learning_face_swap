@@ -5,8 +5,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 
-# Cache global pour les modèles (lazy loading)
-_models_cache = None
+_models_cache = {}  # Cache par nom de modèle
 
 
 def ensure_model_downloaded():
@@ -18,10 +17,9 @@ def ensure_model_downloaded():
     model_path = model_dir / "inswapper_128.onnx"
     
     if model_path.exists():
-        print(f"✅ Modèle inswapper déjà présent")
         return str(model_path)
     
-    print(f"📥 Téléchargement de inswapper_128.onnx (~538 MB)...")
+    print(f"📥 Téléchargement de inswapper_128.onnx...")
     
     urls = [
         "https://github.com/facefusion/facefusion-assets/releases/download/models/inswapper_128.onnx",
@@ -30,29 +28,31 @@ def ensure_model_downloaded():
     
     for i, url in enumerate(urls):
         try:
-            print(f"   Tentative {i+1}/{len(urls)}...")
             urllib.request.urlretrieve(url, model_path)
             print(f"✅ Téléchargement réussi")
             return str(model_path)
         except Exception as e:
-            print(f"❌ Échec tentative {i+1}: {e}")
             if i < len(urls) - 1:
-                print(f"🔄 Tentative avec URL suivante...")
+                print(f"❌ Échec, tentative suivante...")
             else:
                 raise RuntimeError(f"Impossible de télécharger le modèle")
 
 
-def load_models(use_gpu=False):
+def load_models(model_name='buffalo_l', use_gpu=False):
     """
-    Charge les modèles InsightFace avec cache global.
+    Charge les modèles InsightFace avec cache par modèle.
+    
+    Args:
+        model_name: 'buffalo_l', 'buffalo_sc', etc.
     """
     global _models_cache
     
-    if _models_cache is not None:
-        print("✅ Modèles déjà en cache")
-        return _models_cache
+    # Vérifier si ce modèle est déjà en cache
+    if model_name in _models_cache:
+        print(f"✅ Modèle {model_name} déjà en cache")
+        return _models_cache[model_name]
     
-    print("🔄 Premier chargement des modèles InsightFace...")
+    print(f"🔄 Chargement de {model_name}...")
     
     try:
         from insightface.app import FaceAnalysis
@@ -62,18 +62,37 @@ def load_models(use_gpu=False):
     
     ctx_id = -1  # CPU uniquement
     
-    # Utiliser buffalo_l (meilleure qualité que buffalo_sc)
-    print("🔄 Chargement FaceAnalysis (buffalo_l)...")
-    app = FaceAnalysis(name='buffalo_l')
-    app.prepare(ctx_id=ctx_id, det_size=(640, 640))
+    # ════════════════════════════════════════════════════════════
+    # Chercher le modèle dans app/models/face_swap
+    # ════════════════════════════════════════════════════════════
+    BASE_DIR = Path(__file__).resolve().parents[1]
+    local_model_path = BASE_DIR / "models" / "face_swap" / model_name
+    
+    if local_model_path.exists():
+        print(f"✅ Utilisation du modèle local : {local_model_path}")
+        app = FaceAnalysis(name=model_name, root=str(BASE_DIR / "models" / "face_swap"))
+    else:
+        print(f"⚠️ Modèle local absent, téléchargement dans ~/.insightface/")
+        app = FaceAnalysis(name=model_name)
+    
+    # Adapter det_size selon le modèle
+    det_sizes = {
+        'buffalo_s': (256, 256),
+        'buffalo_sc': (320, 320),
+        'buffalo_l': (640, 640)
+    }
+    det_size = det_sizes.get(model_name, (320, 320))
+    
+    app.prepare(ctx_id=ctx_id, det_size=det_size)
     
     print("🔄 Préparation inswapper...")
     model_path = ensure_model_downloaded()
     swapper = get_model(model_path, providers=['CPUExecutionProvider'])
     
-    _models_cache = (app, swapper)
+    # Mettre en cache
+    _models_cache[model_name] = (app, swapper)
     
-    print("✅ Modèles chargés et mis en cache")
+    print(f"✅ {model_name} chargé et mis en cache")
     return app, swapper
 
 
@@ -81,26 +100,14 @@ def get_aligned_face(app, image):
     """Détecte le visage principal."""
     faces = app.get(image)
     if len(faces) == 0:
-        raise Exception("Aucun visage détecté dans l'image")
+        raise Exception("Aucun visage détecté")
     
-    # Prendre le visage le plus grand
     face = sorted(faces, key=lambda x: x.bbox[2] * x.bbox[3], reverse=True)[0]
     return face
 
 
 def swap_faces(app, swapper, target_img, source_img):
-    """
-    Effectue le face swap.
-    
-    Args:
-        app: Modèle FaceAnalysis
-        swapper: Modèle inswapper
-        target_img: Image cible (numpy BGR)
-        source_img: Image source (numpy BGR)
-    
-    Returns:
-        Image résultat (numpy BGR)
-    """
+    """Effectue le face swap."""
     target_face = get_aligned_face(app, target_img)
     source_face = get_aligned_face(app, source_img)
     
@@ -114,21 +121,15 @@ def swap_faces(app, swapper, target_img, source_img):
     return result
 
 
-def face_swap_from_paths(target_path: str, source_path: str, output_path: str, use_gpu: bool = False):
+def face_swap_from_paths(target_path: str, source_path: str, output_path: str, use_gpu: bool = False, model_name: str = 'buffalo_l'):
     """
     Face swap complet depuis les chemins de fichiers.
     
     Args:
-        target_path: Chemin image cible
-        source_path: Chemin image source
-        output_path: Chemin de sortie
-        use_gpu: Utiliser GPU (False sur Render)
-    
-    Returns:
-        str: Chemin vers l'image résultat
+        model_name: Nom du modèle InsightFace à utiliser
     """
-    print("🔄 Chargement des modèles InsightFace...")
-    app, swapper = load_models(use_gpu=use_gpu)
+    print(f"🔄 Chargement du modèle {model_name}...")
+    app, swapper = load_models(model_name=model_name, use_gpu=use_gpu)
     
     print(f"🔄 Chargement des images...")
     target_img = cv2.imread(str(target_path))

@@ -5,52 +5,38 @@ import cv2
 from pathlib import Path
 
 
-def ensure_yolo_model():
-    """Télécharge YOLOv8 dans app/models si absent."""
-    BASE_DIR = Path(__file__).resolve().parents[1]
-    model_path = BASE_DIR / "models" / "yolov8n.pt"
-    
-    if model_path.exists():
-        return str(model_path)
-    
-    print(f"📥 Téléchargement de yolov8n.pt dans {model_path.parent}...")
-    
-    try:
-        from ultralytics import YOLO
-        
-        # Télécharger avec Ultralytics (dans le cache)
-        temp_model = YOLO('yolov8n.pt')
-        
-        # Copier depuis le cache vers app/models
-        import shutil
-        cache_path = temp_model.ckpt_path
-        shutil.copy(cache_path, model_path)
-        
-        print(f"✅ Modèle copié dans {model_path}")
-        
-    except Exception as e:
-        print(f"❌ Erreur téléchargement : {e}")
-        # Fallback : téléchargement direct
-        import urllib.request
-        url = "https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n.pt"
-        urllib.request.urlretrieve(url, model_path)
-        print(f"✅ Téléchargement direct réussi")
-    
-    return str(model_path)
-
-
-def crop_face_yolo(image_path: str, output_path: str = None) -> str:
+def crop_face_yolo(image_path: str, output_path: str = None, model_name: str = 'yolov8n') -> str:
     """
     Détecte et crop le visage principal avec YOLOv8.
+    
+    Args:
+        image_path: Chemin de l'image d'entrée
+        output_path: Chemin de sortie (optionnel)
+        model_name: Nom du modèle ('yolov8n', 'model', etc.)
+    
+    Returns:
+        str: Chemin de l'image croppée
     """
     try:
         from ultralytics import YOLO
     except ImportError:
         raise ImportError("pip install ultralytics")
     
-    # Charger le modèle depuis app/models
-    model_path = ensure_yolo_model()
-    model = YOLO(model_path)
+    # ════════════════════════════════════════════════════════════
+    # Charger le bon modèle selon le choix
+    # ════════════════════════════════════════════════════════════
+    BASE_DIR = Path(__file__).resolve().parents[1]
+    
+    # Chercher le modèle dans app/models/crop/
+    model_path = BASE_DIR / "models" / "crop" / f"{model_name}.pt"
+    
+    if model_path.exists():
+        print(f"✅ Utilisation du modèle : {model_path}")
+        model = YOLO(str(model_path))
+    else:
+        # Fallback : téléchargement automatique si c'est un modèle standard
+        print(f"⚠️ Modèle local {model_path} absent, utilisation standard")
+        model = YOLO(f'{model_name}.pt')
     
     # Charger l'image
     image = cv2.imread(image_path)
@@ -96,11 +82,19 @@ def crop_face_yolo(image_path: str, output_path: str = None) -> str:
     return output_path
 
 
-def crop_two_faces_yolo(image_a_path: str, image_b_path: str) -> tuple[str, str]:
+def crop_two_faces_yolo(image_a_path: str, image_b_path: str, model_name: str = 'yolov8n') -> tuple[str, str]:
     """
     Crop deux images avec YOLO.
+    
+    Args:
+        image_a_path: Chemin image A
+        image_b_path: Chemin image B
+        model_name: Nom du modèle à utiliser
+    
+    Returns:
+        tuple: (chemin_a_crop, chemin_b_crop)
     """
-    crop_a = crop_face_yolo(image_a_path)
-    crop_b = crop_face_yolo(image_b_path)
+    crop_a = crop_face_yolo(image_a_path, model_name=model_name)
+    crop_b = crop_face_yolo(image_b_path, model_name=model_name)
     
     return crop_a, crop_b
