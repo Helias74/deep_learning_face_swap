@@ -31,8 +31,59 @@ document.getElementById("input-target").addEventListener("change", (e) => {
   if (sourceFile && targetFile) performSwap();
 });
 
+// ════════════════════════════════════════════════════════════
+// FONCTION ROBUSTE : Trouve la zone de résultat avec ou sans ID
+// ════════════════════════════════════════════════════════════
+function getResultZone() {
+  // Méthode 1 : Par ID (si présent)
+  let resultZone = document.getElementById("result-zone");
+  
+  if (resultZone) {
+    console.log("✅ Zone résultat trouvée par ID");
+    return resultZone;
+  }
+  
+  // Méthode 2 : Par label "Résultat"
+  console.warn("⚠️ ID result-zone absent, recherche par label...");
+  const labels = document.querySelectorAll('.label');
+  
+  for (let label of labels) {
+    if (label.textContent.trim() === 'Résultat') {
+      resultZone = label.nextElementSibling;
+      if (resultZone && resultZone.classList.contains('dropzone')) {
+        console.log("✅ Zone résultat trouvée par label");
+        return resultZone;
+      }
+    }
+  }
+  
+  // Méthode 3 : Dernière card en dehors de upload-grid
+  console.warn("⚠️ Recherche par position...");
+  const allCards = document.querySelectorAll('.card');
+  const uploadGrid = document.querySelector('.upload-grid');
+  
+  for (let card of allCards) {
+    if (!uploadGrid.contains(card)) {
+      const dropzone = card.querySelector('.dropzone');
+      if (dropzone) {
+        console.log("✅ Zone résultat trouvée par position");
+        return dropzone;
+      }
+    }
+  }
+  
+  console.error("❌ Impossible de trouver la zone de résultat !");
+  return null;
+}
+
 async function performSwap() {
-  const resultCard = document.getElementById("result-zone");  // ← CHANGEMENT ICI
+  const resultCard = getResultZone();
+  
+  if (!resultCard) {
+    console.error("❌ Zone de résultat introuvable");
+    alert("Erreur : impossible de trouver la zone de résultat. Veuillez rafraîchir la page.");
+    return;
+  }
   
   resultCard.innerHTML = `
     <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#666;">

@@ -7,4 +7,10 @@ venv/
 app/data/*
 app/errors/*
 .claude
+cat > .gitignore << 'EOF'
+# Ignorer tout le contenu de uploads/
 uploads/*
+
+# Mais garder le dossier lui-même
+!uploads/.gitkeep
+EOF
