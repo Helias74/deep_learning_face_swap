@@ -1,16 +1,49 @@
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
 .env
 venv/
+env/
+.venv/
+
+
 .DS_Store
+Thumbs.db
+
 *.db
+*.sqlite
+*.sqlite3
+
 app/data/*
 app/errors/*
-.claude
-cat > .gitignore << 'EOF'
-# Ignorer tout le contenu de uploads/
-uploads/*
 
-# Mais garder le dossier lui-même
+uploads/*
 !uploads/.gitkeep
-EOF
+
+
+
+app/models/crop/*.pt
+
+app/models/crop/*.pth
+
+app/models/face_swap/buffalo_l/
+app/models/face_swap/buffalo_sc/
+app/models/face_swap/models/
+*.onnx
+
+app/models/**/*.zip
+
+.insightface/
+runs/
+weights/
+
+
+.vscode/
+.idea/
+*.swp
+*.swo
+.claude
+
+*.log
+logs/
