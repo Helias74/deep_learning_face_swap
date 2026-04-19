@@ -174,3 +174,24 @@ function downloadImage(url) {
   a.download = `faceswap_${Date.now()}.jpg`;
   a.click();
 }
+
+
+// ════════════════════════════════════════════════════════════
+// Pré-charger les modèles au chargement de la page
+// ════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  console.log("🔄 Pré-chargement des modèles...");
+  
+  try {
+    const response = await fetch(`${API}/swap/warmup`, { method: "POST" });
+    const data = await response.json();
+    
+    if (data.ready) {
+      console.log("✅ Modèles prêts !");
+    } else {
+      console.warn("⚠️ Modèles non chargés, premier swap sera lent");
+    }
+  } catch (error) {
+    console.warn("⚠️ Erreur pré-chargement:", error);
+  }
+});

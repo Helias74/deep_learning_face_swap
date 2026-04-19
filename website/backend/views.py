@@ -158,3 +158,39 @@ async def process_face_swap(
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+    
+    
+    
+@router.post("/swap/warmup")
+async def warmup_models():
+    """
+    Endpoint pour pré-charger les modèles InsightFace.
+    Appeler au chargement de la page pour éviter le timeout au premier swap.
+    """
+    try:
+        print("🔄 Warmup : Chargement des modèles...")
+        
+        import sys
+        from pathlib import Path
+        BASE_DIR = Path(__file__).resolve().parents[2]
+        sys.path.insert(0, str(BASE_DIR / "app" / "face_swap"))
+        
+        from swapper import load_models
+        
+        # Charger les modèles (met en cache)
+        app, swapper = load_models(use_gpu=False)
+        
+        print("✅ Warmup terminé")
+        
+        return {
+            "status": "success",
+            "message": "Modèles InsightFace chargés et prêts",
+            "ready": True
+        }
+    except Exception as e:
+        print(f"❌ Erreur warmup : {e}")
+        return {
+            "status": "error",
+            "message": str(e),
+            "ready": False
+        }

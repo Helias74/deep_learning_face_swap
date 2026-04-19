@@ -23,19 +23,38 @@ init_db()
 
 
 @app.on_event("startup")
-def load_models():
-    """Charge les modèles ML au démarrage du serveur"""
+async def startup_event():
+    """Démarrage du serveur : pré-télécharger les modèles"""
     print("🚀 Démarrage du serveur...")
+    
+    # 1. Scan des modèles de crop
     print("📊 Scan des modèles de crop...")
-    
-    # Scan des modèles disponibles
     models = scan_model()
-    
-    # Insertion en BDD
     insert_model("faceswap.db", models)
+    print("✅ Modèles de crop chargés")
+    
+    # 2. Pré-télécharger les modèles InsightFace
+    print("📥 Pré-téléchargement des modèles InsightFace...")
+    try:
+        # Importer et charger les modèles au démarrage
+        import sys
+        from pathlib import Path
+        
+        # Ajouter le chemin
+        BASE_DIR = Path(__file__).resolve().parents[2]
+        sys.path.insert(0, str(BASE_DIR / "app" / "face_swap"))
+        
+        from swapper import load_models
+        
+        # Charger les modèles (téléchargement si nécessaire)
+        app, swapper = load_models(use_gpu=False)
+        
+        print("✅ Modèles InsightFace prêts en cache")
+    except Exception as e:
+        print(f"⚠️ Erreur pré-téléchargement InsightFace : {e}")
+        print("→ Les modèles seront téléchargés au premier appel")
     
     print("✅ Serveur prêt")
-    # Note: Les modèles InsightFace seront chargés au premier appel /swap/process
 
 
 @app.get("/health")
