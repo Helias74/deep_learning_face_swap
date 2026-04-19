@@ -7,31 +7,26 @@ from queries import insert_model
 
 app = FastAPI(title="FaceSwap Vanilla API")
 
-# ════════════════════════════════════════════════════════════
-# CORS : Autoriser toutes les origines (frontend Render)
-# ════════════════════════════════════════════════════════════
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],           # Permet toutes les origines
-    allow_credentials=True,        # Permet les cookies (ajouté)
-    allow_methods=["*"],           # Permet toutes les méthodes
-    allow_headers=["*"],           # Permet tous les headers
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(router)
 
-# Création des tables à l'importation
+# Création des tables
 init_db()
 
 
-# ════════════════════════════════════════════════════════════
-# Événement au démarrage : Charger les modèles ML
-# ════════════════════════════════════════════════════════════
 @app.on_event("startup")
 def load_models():
     """Charge les modèles ML au démarrage du serveur"""
     print("🚀 Démarrage du serveur...")
-    print("📊 Chargement des modèles ML...")
+    print("📊 Scan des modèles de crop...")
     
     # Scan des modèles disponibles
     models = scan_model()
@@ -39,27 +34,19 @@ def load_models():
     # Insertion en BDD
     insert_model("faceswap.db", models)
     
-    print("✅ Modèles chargés avec succès")
+    print("✅ Serveur prêt")
+    # Note: Les modèles InsightFace seront chargés au premier appel /swap/process
 
 
-# ════════════════════════════════════════════════════════════
-# Health check
-# ════════════════════════════════════════════════════════════
 @app.get("/health")
 def health():
-    """Endpoint de santé pour vérifier que l'API fonctionne"""
+    """Endpoint de santé"""
     return {"status": "ok", "message": "FaceSwap API is running"}
 
 
-# ════════════════════════════════════════════════════════════
-# Endpoint de ping (pour garder le serveur éveillé)
-# ════════════════════════════════════════════════════════════
 @app.get("/ping")
 def ping():
-    """
-    Endpoint pour garder le serveur éveillé sur Render.
-    Le plan gratuit arrête le serveur après 15 min d'inactivité.
-    """
+    """Endpoint pour garder le serveur éveillé"""
     from datetime import datetime
     return {
         "status": "alive",
@@ -68,9 +55,6 @@ def ping():
     }
 
 
-# ════════════════════════════════════════════════════════════
-# Route racine
-# ════════════════════════════════════════════════════════════
 @app.get("/")
 def read_root():
     """Page d'accueil de l'API"""

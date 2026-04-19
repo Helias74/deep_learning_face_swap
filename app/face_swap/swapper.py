@@ -5,6 +5,9 @@ import cv2
 import numpy as np
 from pathlib import Path
 
+# Cache global pour les modèles (lazy loading)
+_models_cache = None
+
 
 def ensure_model_downloaded():
     """Télécharge inswapper_128.onnx si absent."""
@@ -18,7 +21,7 @@ def ensure_model_downloaded():
         print(f"✅ Modèle déjà présent")
         return str(model_path)
     
-    print(f"📥 Téléchargement de inswapper_128.onnx (~538 MB, peut prendre 2-5 min)...")
+    print(f"📥 Téléchargement de inswapper_128.onnx (~538 MB, 2-5 min)...")
     
     urls = [
         "https://github.com/facefusion/facefusion-assets/releases/download/models/inswapper_128.onnx",
@@ -27,7 +30,7 @@ def ensure_model_downloaded():
     
     for i, url in enumerate(urls):
         try:
-            print(f"   Tentative {i+1}/{len(urls)}: {url[:60]}...")
+            print(f"   Tentative {i+1}/{len(urls)}...")
             urllib.request.urlretrieve(url, model_path)
             print(f"✅ Téléchargement réussi")
             return str(model_path)
@@ -36,18 +39,30 @@ def ensure_model_downloaded():
             if i < len(urls) - 1:
                 print(f"🔄 Tentative avec URL suivante...")
             else:
-                raise RuntimeError(f"Impossible de télécharger le modèle après {len(urls)} tentatives")
+                raise RuntimeError(f"Impossible de télécharger le modèle")
 
 
 def load_models(use_gpu=False):
-    """Charge les modèles InsightFace."""
+    """
+    Charge les modèles InsightFace (avec cache).
+    Les modèles sont chargés UNE SEULE FOIS au premier appel.
+    """
+    global _models_cache
+    
+    # Si déjà chargés, retourner le cache
+    if _models_cache is not None:
+        print("✅ Modèles déjà en cache")
+        return _models_cache
+    
+    print("🔄 Premier chargement des modèles InsightFace...")
+    
     try:
         from insightface.app import FaceAnalysis
         from insightface.model_zoo import get_model
     except ImportError:
         raise ImportError("pip install insightface onnxruntime")
     
-    ctx_id = 0 if use_gpu else -1
+    ctx_id = -1  # Toujours CPU sur Render
     
     print("🔄 Chargement FaceAnalysis...")
     app = FaceAnalysis(name='buffalo_l')
@@ -57,7 +72,10 @@ def load_models(use_gpu=False):
     model_path = ensure_model_downloaded()
     swapper = get_model(model_path, providers=['CPUExecutionProvider'])
     
-    print("✅ Modèles chargés")
+    # Mettre en cache
+    _models_cache = (app, swapper)
+    
+    print("✅ Modèles chargés et mis en cache")
     return app, swapper
 
 
